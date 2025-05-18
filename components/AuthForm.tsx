@@ -218,21 +218,25 @@ const AuthForm = ({ type }: { type: FormType }) => {
       {/* ✅ OTP Modal */}
       {accountId && showOtpModal && (
         <OtpModal
-          email={form.getValues("email")}
-          accountId={accountId}
-          isStudent={isStudent || form.getValues("isStudent") === "yes"}
-          onSuccess={() => {
-            setShowOtpModal(false);
+  email={form.getValues("email")}
+  accountId={accountId}
+  isStudent={isStudent} // ✅ Use only the DB-stored value
+  onSuccess={() => {
+  setShowOtpModal(false);
 
-            if (isStudent || form.getValues("isStudent") === "yes")  {
-              router.push("/student");
-            } else if (!dashboardAccess) {
-              router.push("/waiting-for-approval");
-            } else {
-              router.push("/");
-            }
-          }}
-        />
+  if (isStudent) {
+    router.push("/student");
+  } else if (!dashboardAccess) {
+    router.push("/waiting-for-approval");
+  } else {
+    router.push("/");
+  }
+}}
+
+
+/>
+
+
       )}
 
       {/* ✅ Admin Modal */}

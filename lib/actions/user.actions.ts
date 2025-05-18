@@ -77,7 +77,6 @@ export const createAccount = async ({
   return parseStringify({ accountId });
 };
 
-// Verify the OTP (email token) after sign-in or sign-up
 export const verifySecret = async ({
   accountId,
   password,
@@ -111,15 +110,26 @@ export const verifySecret = async ({
       throw new Error("Utilisateur introuvable après la vérification de session.");
     }
 
+    // Force dashboardAccess to true for students
+    if (user.isStudent) {
+      return parseStringify({
+        sessionId: session.$id,
+        isStudent: true,
+        dashboardAccess: true,
+      });
+    }
+
     return parseStringify({
       sessionId: session.$id,
-      isStudent: user.isStudent,
+      isStudent: false,
       dashboardAccess: user.dashboardAccess,
     });
   } catch (error) {
     handleError(error, "Échec de la vérification de l'OTP");
   }
 };
+
+
 
 
 // Get the current authenticated user
