@@ -5,7 +5,9 @@ import {
   getNonStudentUsers,
   updateUserDashboardAccess,
   updateUserFileAccessKeyword,
+  deleteNonStudentUser
 } from '@/lib/actions/user.actions';
+
 
 interface NonStudentUser {
   $id: string;
@@ -79,12 +81,20 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleDeleteUser = async (userId: string) => {
+  if (confirm("Voulez-vous vraiment supprimer cet utilisateur ?")) {
+    await deleteNonStudentUser(userId);
+    setFilteredUsers((prev) => prev.filter((user) => user.$id !== userId));
+    setNonStudentUsers((prev) => prev.filter((user) => user.$id !== userId));
+  }
+};
+
   return (
     <div className="min-h-screen bg-light-300 dark:bg-dark-100 py-10 px-6">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-semibold text-dark-500 dark:text-light-300">
-            Tableau de bord d&apos;administration
+            Tableau de bord d&apos;administration de PigierTP
           </h1>
           <div className="flex items-center gap-3">
             <div className="flex items-center bg-white dark:bg-dark-200 border border-gray-300 dark:border-gray-600 rounded-lg p-2 shadow-sm">
@@ -162,7 +172,19 @@ const AdminDashboard = () => {
                     >
                       {user.dashboardAccess ? "Révoquer l'accès" : "Accorder l'accès"}
                     </button>
-
+                        
+                     <button
+                        onClick={() => handleDeleteUser(user.$id)}
+                        className="ml-3 pb-2"
+                        title="Supprimer l'utilisateur"
+                      >
+                        <Image
+                          src="/assets/icons/trash-red.gif"
+                          alt="Supprimer"
+                          width={20}
+                          height={40}
+                        />
+                      </button>    
                   </td>
                 </tr>
               ))}

@@ -1,6 +1,13 @@
 "use server";
 
-import { Account, Avatars, Client, Databases, Storage } from "node-appwrite";
+import {
+  Account,
+  Avatars,
+  Client,
+  Databases,
+  Storage,
+  Users, // ✅ Import Users
+} from "node-appwrite";
 import { appwriteConfig } from "@/lib/appwrite/config";
 import { cookies } from "next/headers";
 
@@ -43,6 +50,9 @@ export const createAdminClient = async () => {
     },
     get avatars() {
       return new Avatars(client);
+    },
+    get users() {
+      return new Users(client); // ✅ ADD THIS LINE
     },
   };
 };

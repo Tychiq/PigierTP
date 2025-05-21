@@ -246,3 +246,36 @@ export const updateUserFileAccessKeyword = async (
   }
 };
 
+
+// ✅ Delete user from Auth + users collection
+export const deleteNonStudentUser = async (userId: string) => {
+  const { databases, users } = await createAdminClient();
+
+  try {
+    // Get the user document to retrieve the Auth accountId
+    const userDoc = await databases.getDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.usersCollectionId,
+      userId
+    );
+
+    const accountId = userDoc.accountId;
+
+    // Delete the Auth user (from Appwrite Console > Users)
+    if (accountId) {
+      await users.delete(accountId);
+    }
+
+    // Delete the user document from your own DB
+    await databases.deleteDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.usersCollectionId,
+      userId
+    );
+  } catch (error) {
+    handleError(error, "Échec de la suppression complète de l'utilisateur");
+  }
+};
+
+
+
