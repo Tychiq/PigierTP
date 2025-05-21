@@ -24,40 +24,35 @@ import { verifySecret, sendEmailOTP } from "@/lib/actions/user.actions";
 type OtpModalProps = {
   accountId: string;
   email: string;
-  isStudent: boolean;
-  onSuccess: () => void; // Callback to parent when OTP is correct
+  onSuccess: (payload: { isStudent: boolean; dashboardAccess: boolean }) => void;
 };
 
 const OtpModal: React.FC<OtpModalProps> = ({
   accountId,
   email,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  isStudent,
   onSuccess,
 }) => {
   const [isOpen, setIsOpen] = useState(true);
   const [otp, setOtp] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [isOtpSent, setIsOtpSent] = useState(false); // Track OTP sent state
+  const [isOtpSent, setIsOtpSent] = useState(false);
 
-  // Send OTP on mount when the modal is opened, but only once
   useEffect(() => {
-          setIsOtpSent(true); // Mark OTP as sent
-  }, [email]); // This effect only runs once when the modal is opened
+    setIsOtpSent(true); // Assume OTP sent from parent
+  }, [email]);
 
-  // Handle OTP submission
   const handleSubmit = async () => {
     setIsLoading(true);
     setMessage("");
 
     try {
-      // Verify OTP using the accountId and password (OTP)
-      const sessionId = await verifySecret({ accountId, password: otp });
+      const result = await verifySecret({ accountId, password: otp });
 
-      if (sessionId) {
+      if (result) {
+        const { isStudent, dashboardAccess } = result;
         setIsOpen(false);
-        onSuccess(); // Notify parent to close modal and redirect
+        onSuccess({ isStudent, dashboardAccess }); // ✅ pass up
       } else {
         setMessage("Code incorrect. Veuillez réessayer.");
       }
@@ -68,14 +63,13 @@ const OtpModal: React.FC<OtpModalProps> = ({
     }
   };
 
-  // Handle OTP resend
   const handleResend = async () => {
-    if (isOtpSent) return; // Prevent resending if already sent once
+    if (isOtpSent) return;
     setMessage("Envoi du nouveau code...");
     try {
       await sendEmailOTP({ email });
       setMessage("Nouveau code envoyé !");
-      setIsOtpSent(true); // OTP is successfully sent again
+      setIsOtpSent(true);
     } catch {
       setMessage("Échec de l'envoi du code. Veuillez réessayer.");
     }
@@ -134,7 +128,6 @@ const OtpModal: React.FC<OtpModalProps> = ({
               )}
             </AlertDialogAction>
 
-            {/* OTP resend link */}
             <div className="subtitle-2 mt-2 text-center text-light-100">
               Vous n&apos;avez pas reçu de code ?
               <Button
@@ -147,6 +140,8 @@ const OtpModal: React.FC<OtpModalProps> = ({
                 Cliquez pour renvoyer
               </Button>
             </div>
+            <p className="text-xs text-light-100 text-center mt-2">
+  Le code expire après 15 minutes. Veuillez recommencer si vous ne l’avez pas entré à temps.</p>
           </div>
         </AlertDialogFooter>
       </AlertDialogContent>

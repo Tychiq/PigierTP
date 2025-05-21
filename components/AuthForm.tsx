@@ -45,8 +45,6 @@ const AuthForm = ({ type }: { type: FormType }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [accountId, setAccountId] = useState<string | null>(null);
-  const [dashboardAccess, setDashboardAccess] = useState<boolean>(false);
-  const [isStudent, setIsStudent] = useState(false);
   const [showOtpModal, setShowOtpModal] = useState(false);
 
   const [showAdminModal, setShowAdminModal] = useState(false);
@@ -84,8 +82,6 @@ const AuthForm = ({ type }: { type: FormType }) => {
       }
 
       setAccountId(user.accountId);
-      setIsStudent(user.isStudent);
-      setDashboardAccess(user.dashboardAccess);
       setShowOtpModal(true); // Always show OTP modal after form submission
     } catch {
       setErrorMessage("Échec de l'authentification. Veuillez réessayer.");
@@ -220,21 +216,20 @@ const AuthForm = ({ type }: { type: FormType }) => {
         <OtpModal
   email={form.getValues("email")}
   accountId={accountId}
-  isStudent={isStudent} // ✅ Use only the DB-stored value
-  onSuccess={() => {
-  setShowOtpModal(false);
+  onSuccess={({ isStudent, dashboardAccess }) => {
+    setShowOtpModal(false);
 
-  if (isStudent) {
-    router.push("/student");
-  } else if (!dashboardAccess) {
-    router.push("/waiting-for-approval");
-  } else {
-    router.push("/");
-  }
-}}
-
-
+    if (isStudent) {
+      router.push("/student");
+    } else if (!dashboardAccess) {
+      router.push("/waiting-for-approval");
+    } else {
+      router.push("/");
+    }
+  }}
 />
+
+
 
 
       )}
